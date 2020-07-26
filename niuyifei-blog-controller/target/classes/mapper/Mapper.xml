@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.niuyifei.mapper.BlogMapper">
+	<select id="queryCategory" resultType="com.niuyifei.bean.Category">
+		select *,(select COUNT(b.bid) from blog b where b.cid = c.cid) as bcount from category c
+	</select>
+	<!-- 博文列表展示 -->
+	<select id="queryBlog" resultType="com.niuyifei.bean.Blog" parameterType="map">
+		select * from blog b,category c where b.cid = c.cid and b.cid = #{cid}
+		<if test="likeName!=null and likeName!=''">
+			and 
+			(
+				b.title like '%${likeName}%' 
+				or b.content like '%${likeName}%' 
+				or b.label like '%${likeName}%'
+			)
+		</if>
+		<if test="orders !=null">
+			order by ${orders}
+		</if>
+	</select>
+	<insert id="addBlog" parameterType="com.niuyifei.bean.Blog">
+		insert into blog(title,content,label,cid,created) values(#{title},#{content},#{label},#{cid},now());
+	</insert>
+	<select id="queryBlogById" parameterType="int" resultType="com.niuyifei.bean.Blog">
+		select * from blog where bid =#{bid}
+	</select>
+	<update id="updateBlog" parameterType="com.niuyifei.bean.Blog">
+		update blog set 
+		title=#{title},content=#{content},cid=#{cid},label=#{label} 
+		where bid=#{bid}
+	</update>
+	<delete id="deleteBlogById" parameterType="int">
+		delete from blog where bid =#{bid}
+	</delete>
+</mapper>
